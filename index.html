@@ -277,7 +277,7 @@ const EXPLAIN={
   point:`<h2>Point density</h2><p>For every 50 m cell, count the points inside the circle and divide by the circle's area. Every included point counts as 1, whatever its distance.</p><p>The result has hard edges: a point just inside the radius counts as much as one at the centre, and a point just outside counts zero.</p>`,
   kernel:`<h2>Kernel density</h2><p>Again only points inside the radius count, but their weight falls with distance: close to the centre a point weighs almost 1, at the edge of the circle it weighs 0.</p><p>The surface becomes smooth and continuous. The radius (bandwidth) is still the key choice: it decides which points get in and how far they spread.</p>`
 };
-const TRY=`<div class="try"><b>Try this</b><ul><li>100 m radius: the map breaks into many isolated blobs.</li><li>1500 m radius: everything merges into one blob over the centre.</li><li>Same spot, same radius: compare Point density and Kernel density.</li><li>Filter Wet: fewer points, so the radius matters even more.</li></ul></div>`;
+const TRY=`<div class="try"><b>Try this</b><ul><li>100 m radius: the map breaks into many small, isolated hotspots.</li><li>1500 m radius: everything merges into one large area over the centre.</li><li>Same spot, same radius: compare Point density and Kernel density.</li><li>Filter Wet: fewer points, so the radius matters even more.</li></ul></div>`;
 
 function readout(info){
   const n=info.list.length, N=info.all.length, A=KM2(S.r);
@@ -327,5 +327,61 @@ new MutationObserver(draw).observe(document.documentElement,{attributes:true,att
 if(document.fonts) document.fonts.ready.then(draw);
 update();
 </script>
+
+<!-- ===================== QUESTIONS PANEL (Microsoft Forms) ===================== -->
+<style>
+body{padding-bottom:84px}
+.quiz{position:fixed;z-index:50;left:0;right:0;bottom:0;background:var(--surface);color:var(--ink);border-top:1px solid var(--line);box-shadow:0 -6px 24px rgba(0,0,0,.14);display:flex;flex-direction:column;padding-bottom:env(safe-area-inset-bottom)}
+.qbar{all:unset;box-sizing:border-box;display:flex;align-items:center;gap:10px;width:100%;padding:12px 16px;cursor:pointer;min-height:56px}
+.qbar:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+.qpill{flex:none;font:600 12px/1 var(--mono);background:var(--accent);color:var(--accent-ink);padding:6px 9px;border-radius:999px}
+.qtitle{flex:1;min-width:0;font:600 15px/1.25 var(--sans);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.qchev{flex:none;font-size:14px;color:var(--muted);transition:transform .2s}
+.quiz[data-open="true"] .qchev{transform:rotate(180deg)}
+.qbody{border-top:1px solid var(--line);display:flex;flex-direction:column}
+.quiz[data-open="false"] .qbody{display:none}
+.qhint{margin:0;padding:8px 16px;font-size:13px;color:var(--muted);background:var(--mapbg);border-bottom:1px solid var(--line)}
+.qhint a{color:var(--accent);font-weight:600}
+.qframe{display:block;width:100%;height:62vh;border:0;background:#fff}
+@media (min-width:861px){
+  body{padding-bottom:32px}
+  .side .quiz{position:static;box-shadow:none;border:1px solid var(--line);border-radius:10px;padding-bottom:0;overflow:hidden}
+  .side .quiz .qframe{height:640px}
+}
+</style>
+
+<div class="quiz" id="quiz" data-open="false">
+  <button type="button" class="qbar" id="qbar" aria-expanded="false" aria-controls="qbody">
+    <span class="qpill">QUESTIONS</span>
+    <span class="qtitle" id="qtitle">Lincoln Collision Hotspot Hunt</span>
+    <span class="qchev" aria-hidden="true">&#9650;</span>
+  </button>
+  <div class="qbody" id="qbody">
+    <p class="qhint" id="qhint">Tap the bar above to hide the questions and explore the map, then tap it again to answer. Your answers are kept.</p>
+    <p class="qhint">Form not showing? <a id="qopen" href="https://forms.office.com/Pages/ResponsePage.aspx?id=xEculd4FgkKDr19LRrFij805AJsRbmxKmh4N8lxPZRZUN0NYQURKM1lTT1lVUElYODM5NUhISTdROC4u" target="_blank" rel="noopener">Open the questions in a new tab</a></p>
+    <iframe class="qframe" id="qframe" title="Questions" loading="lazy" src="https://forms.office.com/Pages/ResponsePage.aspx?id=xEculd4FgkKDr19LRrFij805AJsRbmxKmh4N8lxPZRZUN0NYQURKM1lTT1lVUElYODM5NUhISTdROC4u&embed=true" allowfullscreen></iframe>
+  </div>
+</div>
+
+<script>
+(function(){
+  const box = document.getElementById('quiz'), bar = document.getElementById('qbar'),
+        title = document.getElementById('qtitle'), hint = document.getElementById('qhint');
+  const wide = matchMedia('(min-width:861px)');
+  function setOpen(o){
+    box.dataset.open = o; bar.setAttribute('aria-expanded', o);
+    title.textContent = o ? 'Tap here to hide and use the map' : 'Tap here to answer the questions';
+  }
+  function place(){
+    const side = document.querySelector('.side');
+    if (wide.matches && side) { side.prepend(box); setOpen(true); title.textContent = 'Lincoln Collision Hotspot Hunt'; hint.hidden = true; }
+    else { if (box.parentNode !== document.body) document.body.appendChild(box); hint.hidden = false; setOpen(box.dataset.open === 'true'); }
+  }
+  bar.addEventListener('click', () => { setOpen(box.dataset.open !== 'true'); if (wide.matches) title.textContent = 'Lincoln Collision Hotspot Hunt'; });
+  wide.addEventListener('change', place);
+  place();
+})();
+</script>
+
 </body>
 </html>
